@@ -1,6 +1,6 @@
 {
   "name": "win-native-toast",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Production-grade Windows toast notifications for Node.js with progress support",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -20,7 +20,9 @@
   "type": "module",
   "files": [
     "dist",
-    "bin"
+    "bin/*.exe",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "npm run build:native && npm run build:esm && npm run build:cjs && npm run build:types",
@@ -31,7 +33,6 @@
     "build:native:debug": "dotnet build ./native/ToastBridge/ToastBridge.csproj -c Debug -o ./bin",
     "clean": "rimraf dist bin",
     "prepublishOnly": "npm run clean && npm run build",
-    "postinstall": "node scripts/postinstall.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "example:basic": "node examples/basic.js",
@@ -48,14 +49,14 @@
     "win32",
     "electron-alternative"
   ],
-  "author": "",
+  "author": "Bour Bilal",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/bilooDev/win-native-toast.git"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "os": [
     "win32"
@@ -65,5 +66,9 @@
     "rimraf": "^5.0.0",
     "typescript": "^5.0.0",
     "vitest": "^1.0.0"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/bilooDev/win-native-toast/issues"
+  },
+  "homepage": "https://github.com/bilooDev/win-native-toast"
 }
