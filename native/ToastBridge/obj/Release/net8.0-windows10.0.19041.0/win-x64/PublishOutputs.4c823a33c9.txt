@@ -1,0 +1,2 @@
+D:\Packages\win-native-toast\native\ToastBridge\bin\Release\net8.0-windows10.0.19041.0\win-x64\publish\win-native-toast.pdb
+D:\Packages\win-native-toast\native\ToastBridge\bin\Release\net8.0-windows10.0.19041.0\win-x64\publish\win-native-toast.exe

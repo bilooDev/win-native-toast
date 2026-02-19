@@ -1,0 +1,2 @@
+D:\Packages\win-native-toast\bin\win-native-toast.pdb
+D:\Packages\win-native-toast\bin\win-native-toast.exe

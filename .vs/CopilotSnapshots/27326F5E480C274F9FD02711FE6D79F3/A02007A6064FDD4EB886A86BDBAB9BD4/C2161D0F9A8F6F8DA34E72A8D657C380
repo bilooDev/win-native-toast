@@ -1,0 +1,159 @@
+﻿/**
+ * Multiple Concurrent Progress Notifications
+ * 
+ * Simulates downloading multiple files at once
+ * 
+ * Run: node examples/multi-progress.js
+ */
+
+import toast from '../dist/esm/index.js';
+
+toast.debug(false); // Less verbose for this example
+
+const downloads = [
+  // { id: 'dl-1', name: 'document.pdf', size: 2.5, speed: 0.15 },
+  // { id: 'dl-2', name: 'video.mp4', size: 150, speed: 0.08 },
+  { id: 'dl-3', name: 'archive.zip', size: 5000, speed: 0.05 },
+];
+
+const activeDownloads = new Map();
+
+function formatSize(mb) {
+  if (mb >= 1000) return `${(mb / 1000).toFixed(1)} GB`;
+  return `${mb.toFixed(1)} MB`;
+}
+
+async function startDownload(download) {
+  const { id, name, size, speed } = download;
+
+  console.log(`Starting: ${name}`);
+
+  // Initialize progress notification
+  toast.progress.start(id, {
+    title: `Downloading ${name}`,
+    message: `0 / ${formatSize(size)}`,
+    value: 0,
+    group: 'downloads',
+  });
+
+  // Track active download state so pause/resume can access progress
+  const active = {
+    download,
+    progress: 0,
+    interval: null,
+    completed: false,
+  };
+
+  const startInterval = () => {
+    if (active.interval || active.completed) return;
+
+    active.interval = setInterval(() => {
+      active.progress += speed * (0.5 + Math.random());
+
+      if (active.progress >= 1) {
+        active.progress = 1;
+        clearInterval(active.interval);
+        active.interval = null;
+        active.completed = true;
+        activeDownloads.delete(id);
+
+        console.log(`✅ Complete: ${name}`);
+
+        toast.progress.complete(id, {
+          showSuccessToast: true,
+          successTitle: 'Download Complete',
+          successMessage: `${name} - ${formatSize(size)}`,
+        });
+
+        // Check if all downloads are done
+        if (activeDownloads.size === 0) {
+          console.log('\n🎉 All downloads complete!');
+          setTimeout(() => {
+            toast.shutdown();
+            process.exit(0);
+          }, 5000);
+        }
+
+        return;
+      }
+
+      const downloaded = size * active.progress;
+      // log progress so console shows resume behavior
+      console.log(`${name}: ${(active.progress * 100).toFixed(0)}%`);
+      toast.progress.update(id, {
+        value: active.progress,
+        status: `${formatSize(downloaded)} / ${formatSize(size)}`,
+      });
+    }, 300);
+  };
+
+  // Start and store
+  startInterval();
+  activeDownloads.set(id, active);
+}
+
+// Handle actions
+toast.on('action', (e) => {
+  const active = activeDownloads.get(e.id);
+
+  switch (e.action) {
+    case 'pause':
+      if (active) {
+        if (active.interval) {
+          clearInterval(active.interval);
+          active.interval = null;
+          console.log(`⏸️ Paused: ${active.download.name}`);
+          toast.progress.pause(e.id);
+        }
+      }
+      break;
+
+    case 'resume':
+      // In a real app, you'd resume the download
+      console.log(`▶️ Resume requested for: ${e.id}`);
+      if (active) {
+        // ignore if already running or completed
+        if (active.interval || active.completed) {
+          console.log(`Resume ignored - already running or completed for ${e.id}`);
+          break;
+        }
+
+        toast.progress.resume(e.id);
+        console.log(`Restarting interval for ${active.download.name}`);
+        // restart interval using same logic
+        startInterval();
+      }
+      break;
+
+    case 'cancel':
+      if (active) {
+        clearInterval(active.interval);
+        console.log(`❌ Cancelled: ${active.download.name}`);
+        toast.progress.cancel(e.id);
+        activeDownloads.delete(e.id);
+      }
+
+      if (activeDownloads.size === 0) {
+        setTimeout(() => {
+          toast.shutdown();
+          process.exit(0);
+        }, 1000);
+      }
+      break;
+  }
+});
+
+// Run
+console.log('Multiple Progress Notifications Example');
+console.log('======================================\n');
+
+// Must init before using progress API
+await toast.init();
+
+// Start all downloads
+for (const download of downloads) {
+  await startDownload(download);
+  await new Promise(r => setTimeout(r, 500)); // Stagger starts
+}
+
+console.log(`\n${downloads.length} downloads started. Watching progress...\n`);

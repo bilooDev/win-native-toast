@@ -1,0 +1,107 @@
+﻿/**
+ * Progress Notification Example
+ * 
+ * Simulates a file download with progress updates
+ * 
+ * Run: node examples/progress.js
+ */
+
+import toast from '../dist/esm/index.js';
+
+toast.debug(true);
+
+// Simulate a download with progress
+async function simulateDownload() {
+  const downloadId = 'download-1';
+  const fileName = 'ubuntu-24.04-desktop-amd64.iso';
+  const totalSize = 5.8; // GB
+
+  console.log(`Starting download: ${fileName}`);
+
+  // Start progress notification
+  toast.progress.start(downloadId, {
+    title: `Downloading ${fileName}`,
+    message: 'Preparing download...',
+    value: 0,
+    appId: 'dz.gpro.delivery',
+    status: '0%',
+    group: 'downloads',
+  });
+
+  // Simulate download progress
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += Math.random() * 0.1;
+
+    if (progress >= 1) {
+      progress = 1;
+      clearInterval(interval);
+
+      // Complete the download
+      console.log('Download complete!');
+      toast.progress.complete(downloadId, {
+        showSuccessToast: true,
+        successTitle: 'Download Complete',
+        successMessage: `${fileName} has been downloaded`,
+      });
+
+      // Exit after a delay
+      setTimeout(() => {
+        console.log('\nExample finished. Shutting down...');
+        toast.shutdown();
+        process.exit(0);
+      }, 5000);
+
+      return;
+    }
+
+    const downloaded = (totalSize * progress).toFixed(2);
+    const status = `${(progress * 100).toFixed(0)}% - ${downloaded} GB / ${totalSize} GB`;
+
+    console.log(`Progress: ${status}`);
+
+    toast.progress.update(downloadId, {
+      value: progress,
+      status: status,
+    });
+  }, 500);
+}
+
+// Handle pause/resume/cancel from toast buttons
+toast.on('action', (e) => {
+  console.log(`\nAction: ${e.action} on ${e.id}`);
+
+  switch (e.action) {
+    case 'pause':
+      console.log('Pausing download...');
+      toast.progress.pause(e.id);
+      break;
+
+    case 'resume':
+      console.log('Resuming download...');
+      toast.progress.resume(e.id);
+      break;
+
+    case 'cancel':
+      console.log('Cancelling download...');
+      toast.progress.cancel(e.id);
+
+      setTimeout(() => {
+        toast.shutdown();
+        process.exit(0);
+      }, 1000);
+      break;
+  }
+});
+
+toast.on('dismissed', (e) => {
+  console.log(`Toast ${e.id} dismissed: ${e.reason}`);
+});
+
+// Run
+console.log('Progress Notification Example');
+console.log('============================\n');
+
+// Must init before using progress API
+await toast.init();
+simulateDownload().catch(console.error);
