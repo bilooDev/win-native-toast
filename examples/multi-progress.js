@@ -71,7 +71,8 @@ async function startDownload(download) {
       console.log(`${name}: ${(active.progress * 100).toFixed(0)}%`);
       toast.progress.update(id, {
         value: active.progress,
-        status: `${formatSize(downloaded)} / ${formatSize(size)}`,
+        status: `${(active.progress * 100).toFixed(0)}%`,
+        valueStringOverride: `${formatSize(downloaded)} / ${formatSize(size)}`,
       });
     }, 300);
   };

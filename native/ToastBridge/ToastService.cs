@@ -204,7 +204,7 @@ public class ToastService
                             : new BindableProgressBarValue("progress"),
                         ValueStringOverride = options.Progress.ValueStringOverride != null
                             ? options.Progress.ValueStringOverride
-                            : new BindableString("progressStatus"),
+                            : new BindableString("progressValueString"),
                         Status = new BindableString("progressStatus")
                     });
                 }
@@ -254,6 +254,7 @@ public class ToastService
                 var data = new NotificationData { SequenceNumber = 0 };
                 data.Values["progress"] = (options.Progress.Value ?? 0).ToString("F2");
                 data.Values["progressStatus"] = options.Progress.Status ?? "";
+                data.Values["progressValueString"] = options.Progress.ValueStringOverride ?? "";
                 toast.Data = data;
                 _progressData[id] = data;
             }
@@ -344,7 +345,7 @@ public class ToastService
     /// <summary>
     /// Update an existing toast's progress
     /// </summary>
-    public void UpdateProgress(string id, double? value, string? status)
+    public void UpdateProgress(string id, double? value, string? status, string? valueStringOverride = null)
     {
         try
         {
@@ -370,6 +371,9 @@ public class ToastService
 
             if (status != null)
                 data.Values["progressStatus"] = status;
+
+            if (valueStringOverride != null)
+                data.Values["progressValueString"] = valueStringOverride;
 
             var meta = _toastMeta.GetValueOrDefault(id);
 

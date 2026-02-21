@@ -89,15 +89,15 @@ export class ProgressAPI {
    * Update progress value and/or status text
    */
   update(id: string, value: number): void;
-  update(id: string, update: { value?: number; status?: string }): void;
-  update(id: string, valueOrUpdate: number | { value?: number; status?: string }): void {
+  update(id: string, update: { value?: number; status?: string; valueStringOverride?: string }): void;
+  update(id: string, valueOrUpdate: number | { value?: number; status?: string; valueStringOverride?: string }): void {
     const state = this.getState(id);
 
     if (state.status !== 'active') {
       throw new Error(`Cannot update progress "${id}" - status is ${state.status}`);
     }
 
-    let payload: { value?: number; status?: string };
+    let payload: { value?: number; status?: string; valueStringOverride?: string };
 
     if (typeof valueOrUpdate === 'number') {
       payload = { value: clampProgress(valueOrUpdate) };

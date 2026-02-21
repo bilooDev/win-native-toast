@@ -118,7 +118,7 @@ public class IpcHandler
                     var payload = DeserializePayload<ProgressUpdatePayload>(message.Payload);
                     if (payload != null)
                     {
-                        _toastService.UpdateProgress(id, payload.Value, payload.Status);
+                        _toastService.UpdateProgress(id, payload.Value, payload.Status, payload.ValueStringOverride);
                     }
                 }
                 break;
@@ -156,7 +156,7 @@ public class IpcHandler
                     var payload = DeserializePayload<ProgressUpdatePayload>(message.Payload);
                     if (payload != null)
                     {
-                        _toastService.UpdateProgress(id, payload.Value, payload.Status);
+                        _toastService.UpdateProgress(id, payload.Value, payload.Status, payload.ValueStringOverride);
                     }
                 }
                 break;

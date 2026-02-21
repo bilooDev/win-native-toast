@@ -125,9 +125,11 @@ toast.progress.complete("download-1", {
 ### Progress with Status
 
 ```js
+// status = left side text, valueStringOverride = right side text
 toast.progress.update("download-1", {
   value: 0.5,
-  status: "Downloading: 50MB / 100MB"
+  status: "50%",
+  valueStringOverride: "50 MB / 100 MB"
 });
 ```
 
@@ -398,7 +400,7 @@ Alternatively, the package will throw a descriptive error if you try to use it o
 |--------|-------------|
 | `progress.start(id, options)` | Start a progress notification |
 | `progress.update(id, value)` | Update progress value (0-1) |
-| `progress.update(id, { value, status })` | Update with status text |
+| `progress.update(id, { value, status, valueStringOverride })` | Update with status (left) and value string (right) |
 | `progress.pause(id)` | Pause and show Resume/Cancel buttons |
 | `progress.resume(id)` | Resume and restore original buttons |
 | `progress.reOpen(id)` | Re-open a dismissed notification |

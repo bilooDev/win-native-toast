@@ -186,6 +186,9 @@ public class ProgressUpdatePayload
     [JsonPropertyName("status")]
     public string? Status { get; set; }
 
+    [JsonPropertyName("valueStringOverride")]
+    public string? ValueStringOverride { get; set; }
+
     [JsonPropertyName("message")]
     public string? Message { get; set; }
 
