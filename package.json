@@ -1,6 +1,6 @@
 {
   "name": "win-native-toast",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Production-grade Windows toast notifications for Node.js with progress support",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
