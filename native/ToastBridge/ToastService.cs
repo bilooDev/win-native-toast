@@ -28,6 +28,7 @@ public class ToastService
     private class ProgressState
     {
         public string Title { get; set; } = "";
+        public string? ProgressTitle { get; set; }
         public string? Message { get; set; }
         public string? Group { get; set; }
         public string? AppId { get; set; }
@@ -198,7 +199,7 @@ public class ToastService
                 {
                     builder.AddVisualChild(new AdaptiveProgressBar()
                     {
-                        Title = options.Progress.Title ?? options.Title,
+                        Title = options.Progress.Title,
                         Value = options.Progress.Indeterminate == true
                             ? AdaptiveProgressBarValue.Indeterminate
                             : new BindableProgressBarValue("progress"),
@@ -464,6 +465,7 @@ public class ToastService
         _progressStates[id] = new ProgressState
         {
             Title = options.Title,
+            ProgressTitle = options.ProgressTitle,
             Message = options.Message,
             Group = options.Group,
             AppId = options.AppId,
@@ -484,6 +486,7 @@ public class ToastService
             Duration = "long",
             Progress = new ProgressOptions
             {
+                Title = options.ProgressTitle,
                 Value = options.Value ?? 0,
                 Status = options.Status,
                 Indeterminate = options.Indeterminate
@@ -525,6 +528,7 @@ public class ToastService
             Duration = "long",
             Progress = new ProgressOptions
             {
+                Title = state.ProgressTitle,
                 Value = state.Value,
                 Status = "Paused"
             }
@@ -568,6 +572,7 @@ public class ToastService
             Duration = "long",
             Progress = new ProgressOptions
             {
+                Title = state.ProgressTitle,
                 Value = state.Value,
                 Status = state.Status
             }
@@ -605,6 +610,7 @@ public class ToastService
                 Duration = "long",
                 Progress = new ProgressOptions
                 {
+                    Title = state.ProgressTitle,
                     Value = state.Value,
                     Status = "Paused"
                 }
@@ -631,6 +637,7 @@ public class ToastService
                 Duration = "long",
                 Progress = new ProgressOptions
                 {
+                    Title = state.ProgressTitle,
                     Value = state.Value,
                     Status = state.Status
                 }

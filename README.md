@@ -122,6 +122,18 @@ toast.progress.complete("download-1", {
 });
 ```
 
+### Separate Notification and Progress Titles
+
+```js
+// Use different titles for the notification and progress bar
+toast.progress.start("download-1", {
+  title: "Download Manager",                    // Main notification title
+  progressTitle: "ubuntu-24.04-desktop.iso",   // Progress bar title
+  message: "Preparing download...",
+  value: 0
+});
+```
+
 ### Progress with Status
 
 ```js

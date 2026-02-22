@@ -68,7 +68,8 @@ async function simulateDownload() {
 
   // Start progress notification
   toast.progress.start(downloadId, {
-    title: `Downloading ${fileName}`,
+    title: 'Download Manager',
+    progressTitle: `Downloading ${fileName}`,
     message: 'Preparing download...',
     value: 0,
     appId: 'dz.gpro.delivery',

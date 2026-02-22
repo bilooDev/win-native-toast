@@ -147,6 +147,9 @@ public class ProgressStartOptions : ProgressOptions
     [JsonPropertyName("title")]
     public new string Title { get; set; } = "";
 
+    [JsonPropertyName("progressTitle")]
+    public string? ProgressTitle { get; set; }
+
     [JsonPropertyName("message")]
     public string? Message { get; set; }
 

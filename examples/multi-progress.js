@@ -6,6 +6,7 @@
  * Run: node examples/multi-progress.js
  */
 
+import { title } from 'process';
 import toast from '../dist/esm/index.js';
 
 toast.debug(false);

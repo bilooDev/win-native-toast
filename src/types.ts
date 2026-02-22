@@ -181,6 +181,8 @@ export interface ScheduleOptions extends ToastOptions {
 export interface ProgressStartOptions {
   /** Main title */
   title: string;
+  /** Progress bar title (separate from main notification title) */
+  progressTitle?: string;
   /** Body message shown while active */
   message?: string;
   /** Message shown when paused (default: 'Paused') */
