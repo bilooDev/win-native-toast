@@ -262,6 +262,71 @@ public class ToastService
             // Event handlers
             toast.Activated += (s, e) =>
             {
+                var meta = _toastMeta.GetValueOrDefault(id);
+
+                // When a custom appId is used, the toast is shown via the raw
+                // Windows API instead of the Compat notifier, so
+                // ToastNotificationManagerCompat.OnActivated won't fire.
+                // Handle the activation directly from the notification object.
+                if (!string.IsNullOrEmpty(meta?.AppId))
+                {
+                    try
+                    {
+                        if (e is Windows.UI.Notifications.ToastActivatedEventArgs activatedArgs)
+                        {
+                            var argDict = new Dictionary<string, string>();
+                            if (!string.IsNullOrEmpty(activatedArgs.Arguments))
+                            {
+                                foreach (var part in activatedArgs.Arguments.Split('&'))
+                                {
+                                    var kv = part.Split('=', 2);
+                                    if (kv.Length == 2)
+                                        argDict[kv[0]] = Uri.UnescapeDataString(kv[1]);
+                                }
+                            }
+
+                            Dictionary<string, string>? inputs = null;
+                            try
+                            {
+                                var userInput = activatedArgs.UserInput;
+                                if (userInput?.Count > 0)
+                                {
+                                    inputs = new Dictionary<string, string>();
+                                    foreach (var kv in userInput)
+                                        inputs[kv.Key] = kv.Value?.ToString() ?? "";
+                                }
+                            }
+                            catch { }
+
+                            if (argDict.TryGetValue("action", out var action))
+                            {
+                                OnAction?.Invoke(new ActionEvent
+                                {
+                                    Id = id,
+                                    Action = action,
+                                    Inputs = inputs,
+                                    Group = meta?.Group,
+                                    AppId = meta?.AppId
+                                });
+                            }
+                            else
+                            {
+                                OnClick?.Invoke(new ClickEvent
+                                {
+                                    Id = id,
+                                    Inputs = inputs,
+                                    Group = meta?.Group,
+                                    AppId = meta?.AppId
+                                });
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"[ToastBridge] Activation handling error: {ex.Message}");
+                    }
+                }
+
                 _activeToasts.TryRemove(id, out _);
             };
 

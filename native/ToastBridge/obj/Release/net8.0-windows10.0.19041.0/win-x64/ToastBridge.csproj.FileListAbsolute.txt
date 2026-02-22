@@ -607,3 +607,4 @@ D:\Packages\win-native-toast-4\win-native-toast\native\ToastBridge\obj\Release\n
 D:\Packages\win-native-toast-4\win-native-toast\native\ToastBridge\obj\Release\net8.0-windows10.0.19041.0\win-x64\win-native-toast.pdb
 D:\Packages\win-native-toast-4\win-native-toast\native\ToastBridge\obj\Release\net8.0-windows10.0.19041.0\win-x64\ToastBridge.genruntimeconfig.cache
 D:\Packages\win-native-toast-4\win-native-toast\native\ToastBridge\obj\Release\net8.0-windows10.0.19041.0\win-x64\ref\win-native-toast.dll
+D:\Packages\win-native-toast-4\win-native-toast\native\ToastBridge\obj\Release\net8.0-windows10.0.19041.0\win-x64\ToastBridge.sourcelink.json

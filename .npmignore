@@ -1,0 +1,42 @@
+# Source code (compiled output is in dist/)
+src/
+
+# Native source code (compiled binary is in bin/)
+native/
+
+# Scripts (not needed at runtime)
+scripts/
+
+# Examples (optional, users can see on GitHub)
+examples/
+
+# IDE/Editor folders
+.vs/
+.vscode/
+.github/
+
+# TypeScript configs
+tsconfig*.json
+
+# Test files
+tests/
+*.test.ts
+*.test.js
+coverage/
+
+# Debug symbols (reduce package size)
+*.pdb
+
+# Git files
+.gitignore
+.gitattributes
+
+# Logs
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Packed tarballs
+*.tgz
