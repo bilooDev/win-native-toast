@@ -7,6 +7,20 @@ import { fileURLToPath } from 'url';
 // ESM compatibility for __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+/**
+ * Resolve asar paths to unpacked paths for Electron compatibility.
+ * Electron's `fs` module transparently reads files inside `.asar` archives,
+ * but `child_process.spawn` cannot execute binaries from inside them.
+ * When the package is listed in `asarUnpack`, the files are extracted to
+ * a parallel `app.asar.unpacked` directory.
+ */
+function resolveAsarPath(filePath: string): string {
+  if (!filePath.includes('app.asar') || filePath.includes('app.asar.unpacked')) {
+    return filePath;
+  }
+  return filePath.replace(/app\.asar/, 'app.asar.unpacked');
+}
 import type {
   IPCMessage,
   IPCEvent,
@@ -78,14 +92,16 @@ export class Bridge extends EventEmitter {
       join(process.env.APPDATA || '', 'win-native-toast', 'win-native-toast.exe'),
     ];
 
-    for (const path of possiblePaths) {
-      if (existsSync(path)) {
-        return path;
+    for (const p of possiblePaths) {
+      // Resolve asar paths so we check the real filesystem, not Electron's virtual asar fs
+      const resolved = resolveAsarPath(p);
+      if (existsSync(resolved)) {
+        return resolved;
       }
     }
 
-    // Return default, will error on start if not found
-    return join(__dirname, '..', 'bin', 'win-native-toast.exe');
+    // Return default with asar resolution
+    return resolveAsarPath(join(__dirname, '..', 'bin', 'win-native-toast.exe'));
   }
 
   /**
@@ -99,13 +115,21 @@ export class Bridge extends EventEmitter {
       return this.readyDeferred.promise;
     }
 
+    // Ensure the executable path isn't inside an asar archive (can't spawn from asar)
+    this.options.executablePath = resolveAsarPath(this.options.executablePath);
+
     this.log('Starting C# backend...');
     this.log(`Executable: ${this.options.executablePath}`);
 
     if (!existsSync(this.options.executablePath)) {
+      const isAsarUnpacked = this.options.executablePath.includes('app.asar.unpacked');
+      const hint = isAsarUnpacked
+        ? '\nThe file needs to be unpacked from the asar archive. ' +
+          'Add to your electron-builder config:\n' +
+          '  "asarUnpack": ["node_modules/win-native-toast/**"]'
+        : '\nMake sure the native binary is installed. Run: npm run postinstall';
       throw new Error(
-        `C# executable not found at: ${this.options.executablePath}\n` +
-        'Make sure the native binary is installed. Run: npm run postinstall'
+        `C# executable not found at: ${this.options.executablePath}${hint}`
       );
     }
 
@@ -336,6 +360,21 @@ export class Bridge extends EventEmitter {
   setDebug(enabled: boolean): void {
     this.options.debug = enabled;
   }
+
+  /**
+   * Update bridge options (only effective before the bridge has started)
+   */
+  updateOptions(options: BridgeOptions): void {
+    if (!this.isReady && !this.process) {
+      Object.assign(this.options, options);
+      // Re-resolve executable path if provided
+      if (options.executablePath) {
+        this.options.executablePath = resolveAsarPath(options.executablePath);
+      } else if (!this.options.executablePath) {
+        this.options.executablePath = this.findExecutable();
+      }
+    }
+  }
 }
 
 // Singleton instance
@@ -347,6 +386,11 @@ let bridgeInstance: Bridge | null = null;
 export function getBridge(options?: BridgeOptions): Bridge {
   if (!bridgeInstance) {
     bridgeInstance = new Bridge(options);
+  } else if (options && !bridgeInstance.ready) {
+    // Update options if the bridge hasn't started yet.
+    // This handles the case where the default singleton is created first
+    // (e.g., from index.ts) and then custom options are provided later.
+    bridgeInstance.updateOptions(options);
   }
   return bridgeInstance;
 }

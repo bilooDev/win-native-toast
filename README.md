@@ -369,6 +369,46 @@ if (isWindows()) {
 
 Alternatively, the package will throw a descriptive error if you try to use it on an unsupported platform.
 
+## Electron Support
+
+`win-native-toast` works out of the box with Electron. The package automatically detects when it's running inside an Electron `app.asar` archive and resolves the native binary path to `app.asar.unpacked`.
+
+### electron-builder Setup
+
+Add `asarUnpack` to your electron-builder config so the native binary is extracted outside the asar archive:
+
+```json
+{
+  "asarUnpack": [
+    "node_modules/win-native-toast/**"
+  ]
+}
+```
+
+### Usage in Electron
+
+No special path handling is needed — just use the `Toast` class normally:
+
+```js
+import { Toast } from "win-native-toast";
+
+const toast = new Toast({
+  debug: true,        // optional: logs IPC details to console
+  readyTimeout: 30000 // optional: increase timeout for slow startup
+});
+
+await toast.init();
+
+await toast.show({
+  appId: "com.mycompany.myapp",
+  title: "Hello from Electron!",
+  message: "Native toast without Electron's Notification API",
+  icon: "/path/to/icon.png"
+});
+```
+
+If `asarUnpack` is not configured, the package will throw a descriptive error with instructions.
+
 ## How It Works
 
 `win-native-toast` uses a lightweight C# backend process that communicates with Node.js via JSON IPC over stdin/stdout. The C# process handles native Windows toast APIs (via `Microsoft.Toolkit.Uwp.Notifications`), while Node.js provides the developer-friendly API.
